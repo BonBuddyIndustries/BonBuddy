@@ -6,74 +6,78 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.bonbuddy.screens.AppScreens
+import com.example.bonbuddy.screens.AppScreenRoutes
 import com.example.bonbuddy.screens.ProductByCategoryScreen
 import com.example.bonbuddy.screens.ProductSearchScreen
 import com.example.bonbuddy.screens.CartScreen
 import com.example.bonbuddy.components.navigation.BottomNavigationBar
 import com.example.bonbuddy.models.product.ProductCategory
-import com.example.bonbuddy.screens.ABC
 import com.example.bonbuddy.screens.ShoppingListOverviewScreen
+
+val LocalNavController = staticCompositionLocalOf<NavHostController> {
+    error("No NavController provided")
+}
 
 @Composable
 fun MainLayout()
 {
     val navController = rememberNavController()
 
+    /* Provides a NavController throughout all screens
+       use via: val navController = LocalNavController.current */
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavigationBar(navController) }
-    ) { paddingValues ->
-        NavHost(
-            navController  = navController,
-            startDestination = AppScreens.ShoppingListOverviewScreen.route,
-            modifier = Modifier
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-        ) {
-            composable(AppScreens.ShoppingListOverviewScreen.route) {
-                ShoppingListOverviewScreen(navController)
-            }
-            composable(AppScreens.ProductSearchScreen.route) {
-                ProductSearchScreen(navController)
-            }
-            composable(AppScreens.CartScreen.route) {
-                CartScreen(navController)
-            }
-
-            composable(AppScreens.afkjawpj.route) {
-                ABC(navController)
-            }
-
-            composable(
-                route = AppScreens.ProductByCategoryScreen.route,
-                arguments = listOf(navArgument("category") {
-                    type = NavType.EnumType(ProductCategory::class.java)
-                })
-            ) { backStackEntry ->
-
-                val args = backStackEntry.arguments
-
-
-
-                val category = (args?.getSerializable("category") as? ProductCategory)
-
-                if (category == null)
-                {
-                    error("ProductByCategoryScreen: missing or invalid 'category' argument")
+    CompositionLocalProvider(
+        LocalNavController provides navController
+    )
+    {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = { BottomNavigationBar(navController) }
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = AppScreenRoutes.ShoppingListOverviewScreenRoute.route,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            ) {
+                composable(AppScreenRoutes.ShoppingListOverviewScreenRoute.route) {
+                    ShoppingListOverviewScreen()
                 }
+                composable(AppScreenRoutes.ProductSearchScreenRoute.route) {
+                    ProductSearchScreen()
+                }
+                composable(AppScreenRoutes.CartScreenRoute.route) {
+                    CartScreen()
+                }
+                composable(
+                    route = AppScreenRoutes.ProductByCategoryScreenRoute.route,
+                    arguments = listOf(navArgument("category") {
+                        type = NavType.EnumType(ProductCategory::class.java)
+                    })
+                ) { backStackEntry ->
 
-                ProductByCategoryScreen(navController, category)
+                    val args = backStackEntry.arguments
+
+                    val category = (args !!.getSerializable("category") as ProductCategory)
+
+
+                    ProductByCategoryScreen(category)
+                }
             }
         }
     }
+
+
 }
 
 

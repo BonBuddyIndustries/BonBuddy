@@ -36,27 +36,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.bonbuddy.BonBuddyApp
-import com.example.bonbuddy.LocalAppViewModels
 import com.example.bonbuddy.R
 import com.example.bonbuddy.extensions.dropShadow
+import com.example.bonbuddy.layout.LocalNavController
 import com.example.bonbuddy.models.product.Product
 import com.example.bonbuddy.models.product.ProductCategory
+import com.example.bonbuddy.viewmodel.cart.CartViewModel
+import com.example.bonbuddy.viewmodel.product.ProductByCategoryViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductByCategoryScreen(navController: NavHostController, category: ProductCategory)
+fun ProductByCategoryScreen(category: ProductCategory)
 {
-    val repo = BonBuddyApp.appModule.productRepository
-    val productsByCategory = remember(category) { repo.getByCategory(category) }
+    val viewModel = hiltViewModel<ProductByCategoryViewModel>()
+    val products = remember(category) { viewModel.getProductByCategory(category) }
+    val navController = LocalNavController.current
 
     Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
             modifier = Modifier
@@ -79,26 +81,28 @@ fun ProductByCategoryScreen(navController: NavHostController, category: ProductC
         )
 
 
-        if (productsByCategory.isEmpty())
+        if (products.isEmpty())
         {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Keine Produkte vorhanden für ${category}", style = TextStyle(fontSize = 18.sp))
+                Text(
+                    "Keine Produkte vorhanden für ${category.toString()}",
+                    style = TextStyle(fontSize = 18.sp)
+                )
             }
 
 
-        }
-        else
+        } else
         {
-            ProductCardGrid(productsByCategory)
+            ProductCardGrid(products)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductCardGrid(productsByCategory: List<Product>)
+fun ProductCardGrid(products: Set<Product>)
 {
-    val cartViewModel = LocalAppViewModels.current.cartViewModel
+    val cartViewModel = hiltViewModel<CartViewModel>()
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(168.dp),
@@ -108,14 +112,11 @@ fun ProductCardGrid(productsByCategory: List<Product>)
 
         horizontalArrangement = Arrangement.spacedBy(24.dp),
 
-        verticalArrangement = Arrangement.spacedBy(32.dp),
-        modifier = Modifier.fillMaxSize()
+        verticalArrangement = Arrangement.spacedBy(32.dp), modifier = Modifier.fillMaxSize()
     ) {
-        items(productsByCategory) { product ->
+        items(products.toList()) { product ->
             ProductCard(
-                product = product,
-                onClick = { cartViewModel.addToCart(product) }
-            )
+                product = product, onClick = { cartViewModel.addToCart(product) })
         }
     }
 
@@ -126,8 +127,7 @@ fun ProductCardGrid(productsByCategory: List<Product>)
 fun ProductCard(modifier: Modifier = Modifier,
                 product: Product,
                 imageID: Int = R.drawable.ic_placeholder,
-                onClick: () -> Unit
-)
+                onClick: () -> Unit)
 {
     Box(
         modifier = modifier
@@ -166,9 +166,7 @@ fun ProductCard(modifier: Modifier = Modifier,
                     .height(28.dp)
                     .clip(shape = RoundedCornerShape(4.dp))
                     .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outlineVariant,
-                        RoundedCornerShape(4.dp)
+                        1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(4.dp)
                     )
             ) {
 

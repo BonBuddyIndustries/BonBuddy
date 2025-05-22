@@ -6,7 +6,7 @@ import com.example.bonbuddy.models.product.ProductUnit
 
 class ProductRepository : IProductRepository
 {
-    val products = listOf(
+    private val _products: MutableSet<Product> = mutableSetOf(
         Product(
             title = "Äpfel",
             unit = ProductUnit.GRAM,
@@ -34,7 +34,6 @@ class ProductRepository : IProductRepository
             unit = ProductUnit.GRAM,
             category = ProductCategory.FRUIT
         ),
-
         Product(
             title = "Granatäpfel",
             unit = ProductUnit.GRAM,
@@ -42,8 +41,42 @@ class ProductRepository : IProductRepository
         ),
     );
 
-    override fun getByCategory(category: ProductCategory): List<Product>
+
+    override fun getAll(): Set<Product>
     {
-        return products.filter { x -> x.category == category }
+        return _products.toSet()
+    }
+
+
+    override fun getByCategory(category: ProductCategory): Set<Product>
+    {
+        return _products.filter { it.category == category }.toSet()
+    }
+
+
+    override fun add(product: Product)
+    {
+        _products.add(product)
+    }
+
+    override fun remove(product: Product)
+    {
+        _products.remove(product)
+    }
+
+    override fun update(product: Product): Boolean {
+        val existing = _products.find { it == product }
+
+        if (existing == null)
+        {
+            return false;
+        }
+
+        existing.title      = product.title
+        existing.unit       = product.unit
+        existing.category   = product.category
+        existing.isFavorite = product.isFavorite
+
+        return true
     }
 }

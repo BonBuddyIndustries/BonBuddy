@@ -39,15 +39,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.bonbuddy.BonBuddyApp
 import com.example.bonbuddy.R
+import com.example.bonbuddy.layout.LocalNavController
+import com.example.bonbuddy.models.product.Product
 import com.example.bonbuddy.models.product.ProductCategory
-import com.example.bonbuddy.screens.AppScreens.ProductByCategoryScreen
+import com.example.bonbuddy.models.product.ProductUnit
+import com.example.bonbuddy.screens.AppScreenRoutes.ProductByCategoryScreenRoute
+import com.example.bonbuddy.viewmodel.product.ProductByCategoryViewModel
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductSearchScreen(navController: NavHostController)
+fun ProductSearchScreen()
 {
     val textFieldState = remember { TextFieldState() }
 
@@ -77,7 +82,7 @@ fun ProductSearchScreen(navController: NavHostController)
             color = MaterialTheme.colorScheme.onSecondaryContainer
         )
 
-        RecipeRecommendationList(navController)
+        RecipeRecommendationList()
 
         Spacer(Modifier.height(32.dp))
 
@@ -88,7 +93,7 @@ fun ProductSearchScreen(navController: NavHostController)
             color = MaterialTheme.colorScheme.secondary
         )
 
-        RecipeList(navController)
+        RecipeList()
         HorizontalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant,
@@ -108,7 +113,7 @@ fun ProductSearchScreen(navController: NavHostController)
 
         Spacer(Modifier.height(2.dp))
 
-        ProductList(navController)
+        ProductList()
 
         Spacer(Modifier.height(32.dp))
 
@@ -138,11 +143,12 @@ fun SimpleSearchBarMinimal(
 
 
 @Composable
-fun RecipeRecommendationList(navController: NavHostController)
+fun RecipeRecommendationList()
 {
-
-    val repo = BonBuddyApp.appModule.recipeRepository
-    var recipes = repo.getRecommended()
+    val recipeNames = listOf(
+        "Rezept 1", "Rezept 2", "Rezept 3", "Rezept 4",
+        "Rezept 5", "Rezept 6", "Rezept 7", "Rezept 8"
+    )
 
     Row(
         Modifier
@@ -152,7 +158,7 @@ fun RecipeRecommendationList(navController: NavHostController)
             .padding(16.dp, 8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        recipes.forEach { name ->
+        recipeNames.forEach { name ->
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = Color.Transparent
@@ -200,7 +206,7 @@ fun RecipeRecommendationItem(itemName: String,
 
 
 @Composable
-fun RecipeList(navController: NavHostController)
+fun RecipeList()
 {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -224,7 +230,7 @@ fun RecipeList(navController: NavHostController)
 }
 
 @Composable
-fun ProductList(navController: NavHostController)
+fun ProductList()
 {
     val productCategories = ProductCategory.entries
 
@@ -233,9 +239,11 @@ fun ProductList(navController: NavHostController)
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxWidth()
         ) {
+            val navController = LocalNavController.current
+
             ImageListItem(
                 itemName = category.toString(),
-                onClick = { navController.navigate(ProductByCategoryScreen.createRoute(category)) }
+                onClick = { navController.navigate(ProductByCategoryScreenRoute.createRoute(category)) }
             )
         }
     }
@@ -250,13 +258,24 @@ fun ProductList(navController: NavHostController)
         )
     }
 
+    val viewModel  = hiltViewModel<ProductByCategoryViewModel>()
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         ImageListItem(
             itemName = "Eigenes Produkt hinzufügen",
-            onClick = { /* TODO: open dialog */ }
+            onClick =
+                {
+                    viewModel.addProdct(Product(
+
+                        id = UUID.fromString("550E8400-e29b-41d4-A716-446655440000"),
+                        title = "FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK",
+                        unit = ProductUnit.GRAM,
+                        category = ProductCategory.FRUIT
+                    ))
+                }
         )
     }
 
