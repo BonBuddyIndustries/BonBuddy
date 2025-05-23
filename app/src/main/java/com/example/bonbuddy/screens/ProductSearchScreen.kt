@@ -40,7 +40,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.bonbuddy.R
 import com.example.bonbuddy.layout.LocalNavController
 import com.example.bonbuddy.models.product.Product

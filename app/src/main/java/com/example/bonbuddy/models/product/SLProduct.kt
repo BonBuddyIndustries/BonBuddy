@@ -2,13 +2,15 @@ package com.example.bonbuddy.models.product
 
 import java.util.UUID
 
-data class Product(
+data class SLProduct(
     override val id: UUID = UUID.randomUUID(),
+    val productID: UUID,
     override var title: String,
     override var quantity: Int = 0,
     override var unit: ProductUnit,
     override var category: ProductCategory = ProductCategory.OTHER,
-    var isFavorite: Boolean = false,
+    var price: Double? = null,
+    var isChecked: Boolean = false
 ) : BaseProduct()
 {
     override fun hashCode(): Int
@@ -24,11 +26,11 @@ data class Product(
             return true
         }
 
-        if (other !is Product)
+        if (other !is SLProduct)
         {
             return false
         }
 
-        return id == other.id
+        return productID == other.productID
     }
 }

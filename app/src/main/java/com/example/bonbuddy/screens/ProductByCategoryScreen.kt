@@ -39,7 +39,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.bonbuddy.R
 import com.example.bonbuddy.extensions.dropShadow
 import com.example.bonbuddy.layout.LocalNavController
